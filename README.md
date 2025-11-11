@@ -155,14 +155,14 @@ Wireframes
 <img width="1035" height="679" alt="image" src="https://github.com/user-attachments/assets/60f0cb91-3e2c-43dd-baa8-43cebdcab7ce" />
 
 
-[BONUS] Digital Wireframes & Mockups
+
 
 ![Screenshot 2025-11-01 124156](https://hackmd.io/_uploads/rk8gY2XJWx.png)
 <img width="1044" height="725" alt="image" src="https://github.com/user-attachments/assets/f7eaf13e-f6cb-407f-b86a-291e35549738" />
 
 
 
-[BONUS] Interactive Prototype
+
 
 Milestone 2 - Build Sprint 1 (Unit 8)
 GitHub Project board
