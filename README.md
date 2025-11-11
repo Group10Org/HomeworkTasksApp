@@ -167,13 +167,33 @@ Wireframes
 Milestone 2 - Build Sprint 1 (Unit 8)
 GitHub Project board
 [Add screenshot of your Project Board with three milestones visible in this section] 
+<img width="1712" height="715" alt="image" src="https://github.com/user-attachments/assets/1fa8a406-e393-4304-93c0-e6e6acf5f222" />
+
 
 Issue cards
 [Add screenshot of your Project Board with the issues that you've been working on for this unit's milestone] 
+<img width="1079" height="508" alt="image" src="https://github.com/user-attachments/assets/4bc27850-bb50-4248-81d8-5f7ccac31a03" />
+
 [Add screenshot of your Project Board with the issues that you're working on in the NEXT sprint. It should include issues for next unit with assigned owners.] 
+
+<img width="539" height="504" alt="image" src="https://github.com/user-attachments/assets/5679cedb-fdee-47a7-bd5a-e9459562dc48" />
+
+
 Issues worked on this sprint
+- create new app file 
+- set up database
+- set up firebase auth login/signup
+- all empty pages
+- nav bar
+
 List the issues you completed this sprint
+- create new app file 
+- set up database
+- set up firebase auth login/signup
+
 [Add giphy that shows current build progress for Milestone 2. Note: We will be looking for progression of work between Milestone 2 and 3. Make sure your giphys are not duplicated and clearly show the change from Sprint 1 to 2.]
+![ezgif com-speed](https://github.com/user-attachments/assets/11f02a6b-388a-4e14-b24b-42a653e37996)
+
 
 Milestone 3 - Build Sprint 2 (Unit 9)
 GitHub Project board
