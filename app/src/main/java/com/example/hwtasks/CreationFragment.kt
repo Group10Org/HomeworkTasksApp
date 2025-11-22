@@ -1,59 +1,126 @@
 package com.example.hwtasks
 
+import android.app.DatePickerDialog
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
+import com.example.hwtasks.data.AppDatabase
+import com.example.hwtasks.data.TaskRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Calendar
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [CreationFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class CreationFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
+    private lateinit var repo: TaskRepository
+    private var selectedDueAt: Long? = null  // epoch seconds
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+        val db = AppDatabase.get(requireContext())
+        repo = TaskRepository(db.taskDao())
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_creation, container, false)
     }
 
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment CreationFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            CreationFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        val titleField = view.findViewById<EditText>(R.id.editTextText)      // Title
+        val classField = view.findViewById<EditText>(R.id.editTextText2)     // Class
+        val descField = view.findViewById<EditText>(R.id.editTextText3)      // Description
+        val priorityField = view.findViewById<EditText>(R.id.editTextText4)  // Priority
+        val dateField = view.findViewById<EditText>(R.id.editTextDate)       // Due date
+        val createButton = view.findViewById<Button>(R.id.button)
+
+        // Date picker
+        dateField.setOnClickListener {
+            showDatePicker(dateField)
+        }
+
+        createButton.setOnClickListener {
+            val titleText = titleField.text.toString().trim()
+            val classText = classField.text.toString().trim()
+            val descText = descField.text.toString().trim()
+
+            if (titleText.isBlank()) {
+                Toast.makeText(requireContext(), "Title is required", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+
+            val priority = priorityField.text.toString()
+                .trim()
+                .toIntOrNull()
+                ?.coerceIn(1, 3) ?: 3
+
+            val dueAt = selectedDueAt
+
+
+            viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                repo.add(
+                    title = titleText,
+                    desc = descText.ifBlank { null },
+                    className = classText.ifBlank { null },
+                    priority = priority,
+                    dueAt = dueAt
+                )
+
+                withContext(Dispatchers.Main) {
+                    Toast.makeText(requireContext(), "Task created", Toast.LENGTH_SHORT).show()
+
+                    // Clear fields
+                    titleField.text?.clear()
+                    classField.text?.clear()
+                    descField.text?.clear()
+                    priorityField.text?.clear()
+                    dateField.text?.clear()
+                    selectedDueAt = null
                 }
             }
+        }
+    }
+
+    private fun showDatePicker(targetField: EditText) {
+        val cal = Calendar.getInstance()
+        val year = cal.get(Calendar.YEAR)
+        val month = cal.get(Calendar.MONTH)
+        val day = cal.get(Calendar.DAY_OF_MONTH)
+
+        val dialog = DatePickerDialog(
+            requireContext(),
+            { _, y, m, d ->
+                val display = "${m + 1}/$d/$y"
+                targetField.setText(display)
+
+                val chosen = Calendar.getInstance().apply {
+                    set(Calendar.YEAR, y)
+                    set(Calendar.MONTH, m)
+                    set(Calendar.DAY_OF_MONTH, d)
+                    set(Calendar.HOUR_OF_DAY, 23)
+                    set(Calendar.MINUTE, 59)
+                    set(Calendar.SECOND, 59)
+                    set(Calendar.MILLISECOND, 0)
+                }
+                selectedDueAt = chosen.timeInMillis / 1000L
+            },
+            year,
+            month,
+            day
+        )
+
+        dialog.show()
     }
 }
