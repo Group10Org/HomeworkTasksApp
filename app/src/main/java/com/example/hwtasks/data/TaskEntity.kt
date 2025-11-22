@@ -9,6 +9,7 @@ data class TaskEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val title: String,
     val description: String? = null,
+    val className: String? = null,
     val priority: Int = 3,
     val createdAt: Long = System.currentTimeMillis() / 1000,
     val dueAt: Long? = null,
