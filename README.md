@@ -206,3 +206,4 @@ List any pending user stories / any user stories you decided to cut from the ori
 
 App Demo Video
 Embed the YouTube/Vimeo link of your Completed Demo Day prep video
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/ipTkYabzb-8/0.jpg)](https://www.youtube.com/watch?v=ipTkYabzb-8)
