@@ -206,6 +206,7 @@ Issues worked on this sprint
 List of issues you completed this sprint
 - settings page
 [Add video/gif of your current application that shows build progress] 
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/7A5XXakaaPc/0.jpg)](https://www.youtube.com/watch?v=7A5XXakaaPc)
 
 App Demo Video
 Embed the YouTube/Vimeo link of your Completed Demo Day prep video
