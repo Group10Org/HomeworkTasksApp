@@ -25,6 +25,9 @@ class ProfileFragment : Fragment() {
 
     private lateinit var repo: TaskRepository
     private lateinit var adapter: TaskAdapter
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var database: AppDatabase
+    private lateinit var settingsManager: SettingsManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,8 +36,9 @@ class ProfileFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
 
-        val db = AppDatabase.get(requireContext())
-        repo = TaskRepository(db.taskDao())
+        database = AppDatabase.get(requireContext())  // Initialize database
+        settingsManager = SettingsManager(requireContext())
+        repo = TaskRepository(database.taskDao())
     }
 
     override fun onCreateView(
@@ -47,7 +51,8 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val recyclerView = view.findViewById<RecyclerView>(R.id.taskRecyclerView)
+        recyclerView = view.findViewById(R.id.taskRecyclerView)
+        recyclerView.layoutManager = LinearLayoutManager(requireContext())
 
         adapter = TaskAdapter(
             onClick = { task -> openDetail(task) },
@@ -55,15 +60,32 @@ class ProfileFragment : Fragment() {
             onToggleComplete = { task -> toggleTask(task) }
         )
 
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
         recyclerView.adapter = adapter
 
+        // Load tasks initially
+        loadTasks()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // Reload tasks when returning to this fragment (e.g., after changing settings)
+        loadTasks()
+    }
+
+    private fun loadTasks() {
         viewLifecycleOwner.lifecycleScope.launch {
-            repo.tasks.collectLatest { list ->
-                adapter.submitList(list)
+            // Choose the appropriate query based on settings
+            val tasksFlow = if (settingsManager.sortByPriority) {
+                database.taskDao().tasksByPriority()
+            } else {
+                database.taskDao().tasksByDueDate()
+            }
+
+            tasksFlow.collectLatest { tasks ->
+                adapter.submitList(tasks)
             }
         }
-    }
+    }  // <-- This closing brace was missing
 
     // 🔹 Open DetailFragment manually using FragmentManager
     private fun openDetail(task: TaskEntity) {
@@ -74,8 +96,6 @@ class ProfileFragment : Fragment() {
         }
 
         parentFragmentManager.beginTransaction()
-            // TODO: replace `fragment_container` with the actual id
-            // of the container in your activity_main.xml that hosts fragments
             .replace(R.id.nav_host_fragment, fragment)
             .addToBackStack(null)
             .commit()
@@ -104,4 +124,3 @@ class ProfileFragment : Fragment() {
             }
     }
 }
-

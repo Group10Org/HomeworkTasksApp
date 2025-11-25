@@ -1,10 +1,20 @@
 package com.example.hwtasks.data
 
+import kotlinx.coroutines.flow.Flow
+
 class TaskRepository(private val dao: TaskDao) {
-    val tasks = dao.tasks()
     val totalCount = dao.totalCountFlow()
     val completedCount = dao.completedCountFlow()
     val incompleteCount = dao.incompleteCountFlow()
+
+    // Function that returns the appropriate Flow based on sorting preference
+    fun getTasks(sortByPriority: Boolean): Flow<List<TaskEntity>> {
+        return if (sortByPriority) {
+            dao.tasksByPriority()
+        } else {
+            dao.tasksByDueDate()
+        }
+    }
 
     suspend fun add(
         title: String,

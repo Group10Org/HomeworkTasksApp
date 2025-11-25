@@ -28,7 +28,17 @@ interface TaskDao {
                dueAt ASC
     """
     )
-    fun tasks(): Flow<List<TaskEntity>>
+    fun tasksByDueDate(): Flow<List<TaskEntity>>
+
+    @Query(
+        value="""
+            SELECT * FROM tasks
+            ORDER BY completionStatus ASC,
+            CASE WHEN priority IS NULL THEN 1 ELSE 0 END, 
+            priority ASC
+        """
+    )
+    fun tasksByPriority(): Flow<List<TaskEntity>>
 
     // 🔹 Used by DetailFragment
     @Query("SELECT * FROM tasks WHERE id = :id LIMIT 1")
