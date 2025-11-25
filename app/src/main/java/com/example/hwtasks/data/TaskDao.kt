@@ -1,46 +1,55 @@
 package com.example.hwtasks.data
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
-import androidx.room.Update
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface TaskDao {
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsert(task: TaskEntity): Long
-
-    @Update
-    suspend fun update(task: TaskEntity)
 
     @Delete
     suspend fun delete(task: TaskEntity)
 
-    @Query(
-        """
+    @Update
+    suspend fun update(task: TaskEntity)
+
+    // Incomplete tasks sorted by due date
+    @Query("""
         SELECT * FROM tasks
-        ORDER BY completionStatus ASC,
-               CASE WHEN dueAt IS NULL THEN 1 ELSE 0 END,
+        WHERE completionStatus = 0
+        ORDER BY CASE WHEN dueAt IS NULL THEN 1 ELSE 0 END,
                dueAt ASC
-    """
-    )
-    fun tasksByDueDate(): Flow<List<TaskEntity>>
+    """)
+    fun incompleteTasksByDueDate(): Flow<List<TaskEntity>>
 
-    @Query(
-        value="""
-            SELECT * FROM tasks
-            ORDER BY completionStatus ASC,
-            CASE WHEN priority IS NULL THEN 1 ELSE 0 END, 
-            priority ASC
-        """
-    )
-    fun tasksByPriority(): Flow<List<TaskEntity>>
+    // Incomplete tasks sorted by priority
+    @Query("""
+        SELECT * FROM tasks
+        WHERE completionStatus = 0
+        ORDER BY priority ASC,
+               createdAt DESC
+    """)
+    fun incompleteTasksByPriority(): Flow<List<TaskEntity>>
 
-    // 🔹 Used by DetailFragment
+    // Completed tasks sorted by due date
+    @Query("""
+        SELECT * FROM tasks
+        WHERE completionStatus = 1
+        ORDER BY CASE WHEN dueAt IS NULL THEN 1 ELSE 0 END,
+               dueAt ASC
+    """)
+    fun completedTasksByDueDate(): Flow<List<TaskEntity>>
+
+    // Completed tasks sorted by priority
+    @Query("""
+        SELECT * FROM tasks
+        WHERE completionStatus = 1
+        ORDER BY priority DESC,
+               createdAt DESC
+    """)
+    fun completedTasksByPriority(): Flow<List<TaskEntity>>
+
     @Query("SELECT * FROM tasks WHERE id = :id LIMIT 1")
     suspend fun getById(id: Long): TaskEntity?
 

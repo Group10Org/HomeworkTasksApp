@@ -7,15 +7,23 @@ class TaskRepository(private val dao: TaskDao) {
     val completedCount = dao.completedCountFlow()
     val incompleteCount = dao.incompleteCountFlow()
 
-    // Function that returns the appropriate Flow based on sorting preference
-    fun getTasks(sortByPriority: Boolean): Flow<List<TaskEntity>> {
+    // Function that returns the appropriate Flow based on incomplete functions
+    fun getIncompleteTasks(sortByPriority: Boolean): Flow<List<TaskEntity>> {
         return if (sortByPriority) {
-            dao.tasksByPriority()
+            dao.incompleteTasksByPriority()
         } else {
-            dao.tasksByDueDate()
+            dao.incompleteTasksByDueDate()
         }
     }
 
+    //returns flow based on completed functions
+    fun getCompletedTasks(sortByPriority: Boolean): Flow<List<TaskEntity>> {
+        return if (sortByPriority) {
+            dao.completedTasksByPriority()
+        } else {
+            dao.completedTasksByDueDate()
+        }
+    }
     suspend fun add(
         title: String,
         desc: String?,

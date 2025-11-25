@@ -12,6 +12,7 @@ import com.example.hwtasks.data.AppDatabase
 import com.example.hwtasks.data.TaskEntity
 import com.example.hwtasks.data.TaskRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -24,8 +25,12 @@ class ProfileFragment : Fragment() {
     private var param2: String? = null
 
     private lateinit var repo: TaskRepository
-    private lateinit var adapter: TaskAdapter
-    private lateinit var recyclerView: RecyclerView
+    private lateinit var incompleteAdapter: TaskAdapter
+    private lateinit var incompleteRecyclerView: RecyclerView
+    private lateinit var completedRecyclerView: RecyclerView
+    private lateinit var completedAdapter: TaskAdapter
+    private var incompleteTasksJob: Job? = null
+    private var completedTasksJob: Job? = null
     private lateinit var database: AppDatabase
     private lateinit var settingsManager: SettingsManager
 
@@ -51,16 +56,27 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        recyclerView = view.findViewById(R.id.taskRecyclerView)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
+        // Setup Incomplete Tasks RecyclerView
+        incompleteRecyclerView = view.findViewById(R.id.taskRecyclerView)
+        incompleteRecyclerView.layoutManager = LinearLayoutManager(requireContext())
 
-        adapter = TaskAdapter(
+        incompleteAdapter = TaskAdapter(
             onClick = { task -> openDetail(task) },
             onDelete = { task -> deleteTask(task) },
             onToggleComplete = { task -> toggleTask(task) }
         )
+        incompleteRecyclerView.adapter = incompleteAdapter
 
-        recyclerView.adapter = adapter
+        // Setup Completed Tasks RecyclerView
+        completedRecyclerView = view.findViewById(R.id.completedTaskView)
+        completedRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+
+        completedAdapter = TaskAdapter(
+            onClick = { task -> openDetail(task) },
+            onDelete = { task -> deleteTask(task) },
+            onToggleComplete = { task -> toggleTask(task) }
+        )
+        completedRecyclerView.adapter = completedAdapter
 
         // Load tasks initially
         loadTasks()
@@ -73,19 +89,26 @@ class ProfileFragment : Fragment() {
     }
 
     private fun loadTasks() {
-        viewLifecycleOwner.lifecycleScope.launch {
-            // Choose the appropriate query based on settings
-            val tasksFlow = if (settingsManager.sortByPriority) {
-                database.taskDao().tasksByPriority()
-            } else {
-                database.taskDao().tasksByDueDate()
-            }
+        // Cancel previous collections if any
+        incompleteTasksJob?.cancel()
+        completedTasksJob?.cancel()
 
-            tasksFlow.collectLatest { tasks ->
-                adapter.submitList(tasks)
-            }
+        // Load incomplete tasks
+        incompleteTasksJob = viewLifecycleOwner.lifecycleScope.launch {
+            repo.getIncompleteTasks(sortByPriority = settingsManager.sortByPriority)
+                .collectLatest { tasks ->
+                    incompleteAdapter.submitList(tasks)
+                }
         }
-    }  // <-- This closing brace was missing
+
+        // Load completed tasks
+        completedTasksJob = viewLifecycleOwner.lifecycleScope.launch {
+            repo.getCompletedTasks(sortByPriority = settingsManager.sortByPriority)
+                .collectLatest { tasks ->
+                    completedAdapter.submitList(tasks)
+                }
+        }
+    }
 
     // 🔹 Open DetailFragment manually using FragmentManager
     private fun openDetail(task: TaskEntity) {
