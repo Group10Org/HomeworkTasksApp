@@ -202,10 +202,11 @@ GitHub Project board
 
 Issues worked on this sprint
 - profile page (statistics section remaining)
+
 List of issues you completed this sprint
 - settings page
 [Add video/gif of your current application that shows build progress] 
 
 App Demo Video
 Embed the YouTube/Vimeo link of your Completed Demo Day prep video
-[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/ipTkYabzb-8/0.jpg)](https://www.youtube.com/watch?v=ipTkYabzb-8)
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/sdEbGsvr-uE/0.jpg)](https://www.youtube.com/watch?v=sdEbGsvr-uE)
