@@ -15,5 +15,6 @@ data class TaskEntity(
     val dueAt: Long? = null,
     val imageUri: String? = null,
     val completionStatus: Boolean = false
+
 )
 

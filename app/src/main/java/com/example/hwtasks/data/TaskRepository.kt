@@ -6,7 +6,7 @@ class TaskRepository(private val dao: TaskDao) {
     val totalCount = dao.totalCountFlow()
     val completedCount = dao.completedCountFlow()
     val incompleteCount = dao.incompleteCountFlow()
-
+    val currentTime = System.currentTimeMillis()
     // Function that returns the appropriate Flow based on incomplete functions
     fun getIncompleteTasks(sortByPriority: Boolean): Flow<List<TaskEntity>> {
         return if (sortByPriority) {
@@ -24,6 +24,9 @@ class TaskRepository(private val dao: TaskDao) {
             dao.completedTasksByDueDate()
         }
     }
+
+    val pastDueCount: Flow<Int>
+        get() = dao.getPastDueCount(System.currentTimeMillis())
     suspend fun add(
         title: String,
         desc: String?,

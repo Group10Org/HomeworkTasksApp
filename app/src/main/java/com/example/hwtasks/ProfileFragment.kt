@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -13,6 +14,7 @@ import com.example.hwtasks.data.TaskEntity
 import com.example.hwtasks.data.TaskRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -20,7 +22,6 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 class ProfileFragment : Fragment() {
-
     private var param1: String? = null
     private var param2: String? = null
 
@@ -33,6 +34,10 @@ class ProfileFragment : Fragment() {
     private var completedTasksJob: Job? = null
     private lateinit var database: AppDatabase
     private lateinit var settingsManager: SettingsManager
+    private var trueCount: Long = 0
+
+    private var curr : Long? = System.currentTimeMillis()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,12 +49,14 @@ class ProfileFragment : Fragment() {
         database = AppDatabase.get(requireContext())  // Initialize database
         settingsManager = SettingsManager(requireContext())
         repo = TaskRepository(database.taskDao())
+
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         return inflater.inflate(R.layout.fragment_profile, container, false)
     }
 
@@ -59,7 +66,10 @@ class ProfileFragment : Fragment() {
         // Setup Incomplete Tasks RecyclerView
         incompleteRecyclerView = view.findViewById(R.id.taskRecyclerView)
         incompleteRecyclerView.layoutManager = LinearLayoutManager(requireContext())
-
+        val incomplete: TextView = view.findViewById(R.id.incompleteTaskCountView)
+        val complete: TextView = view.findViewById(R.id.completeTaskCountView)
+        val total: TextView = view.findViewById(R.id.totalTaskCountView)
+        val sorted: TextView = view.findViewById(R.id.pastDueView)
         incompleteAdapter = TaskAdapter(
             onClick = { task -> openDetail(task) },
             onDelete = { task -> deleteTask(task) },
@@ -78,8 +88,13 @@ class ProfileFragment : Fragment() {
         )
         completedRecyclerView.adapter = completedAdapter
 
+
         // Load tasks initially
         loadTasks()
+        countIncompleted(incomplete)
+        countCompleted(complete)
+        countTotal(total)
+        countPastDue(sorted)
     }
 
     override fun onResume() {
@@ -107,7 +122,9 @@ class ProfileFragment : Fragment() {
                 .collectLatest { tasks ->
                     completedAdapter.submitList(tasks)
                 }
+
         }
+
     }
 
     // 🔹 Open DetailFragment manually using FragmentManager
@@ -127,6 +144,45 @@ class ProfileFragment : Fragment() {
     private fun deleteTask(task: TaskEntity) {
         viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
             repo.remove(task)
+        }
+    }
+    //Statistics
+    //Incomplete Tasks
+    private fun countIncompleted(textView: TextView) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repo.incompleteCount.collectLatest { count ->
+                textView.text = "Incomplete Tasks: $count"
+                trueCount = count
+            }
+      /*  if(trueCount > 0)
+        {
+
+        } */
+        }
+    }
+    private fun countTotal(textView: TextView)
+    {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repo.totalCount.collectLatest { count ->
+                textView.text = "Total Tasks: $count"
+            }
+        }
+    }
+
+    private fun countPastDue(textView: TextView) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repo.pastDueCount.collectLatest { count ->
+                textView.text = "Assignments Past Due: $count"
+            }
+
+        }
+    }
+
+    private fun countCompleted(textView: TextView) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            repo.completedCount.collectLatest { count ->
+                textView.text = "Completed Tasks: $count"
+            }
         }
     }
 
