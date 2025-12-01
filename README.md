@@ -198,11 +198,16 @@ List the issues you completed this sprint
 Milestone 3 - Build Sprint 2 (Unit 9)
 GitHub Project board
 [Add screenshot of your Project Board with the updated status of issues for Milestone 3. Note that these should include the updated issues you worked on for this sprint and not be a duplicate of Milestone 2 Project board.] 
+<img width="1108" height="373" alt="image" src="https://github.com/user-attachments/assets/d6211444-95f3-4638-94d0-67bf79a5a003" />
 
-Completed user stories
-List the completed user stories from this unit
-List any pending user stories / any user stories you decided to cut from the original requirements
+Issues worked on this sprint
+- profile page (statistics section remaining)
+
+List of issues you completed this sprint
+- settings page
 [Add video/gif of your current application that shows build progress] 
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/7A5XXakaaPc/0.jpg)](https://www.youtube.com/watch?v=7A5XXakaaPc)
 
 App Demo Video
 Embed the YouTube/Vimeo link of your Completed Demo Day prep video
+[![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/sdEbGsvr-uE/0.jpg)](https://www.youtube.com/watch?v=sdEbGsvr-uE)
