@@ -62,9 +62,11 @@ interface TaskDao {
     @Query("SELECT COUNT(*) FROM tasks WHERE completionStatus = 0")
     fun incompleteCountFlow(): Flow<Long>
 
-    @Query("SELECT COUNT(*) FROM tasks WHERE dueAt < :now AND completionStatus = 0")
-    fun getPastDueCount(now: Long): Flow<Int>
+    @Query("SELECT COUNT(*) FROM tasks WHERE dueAt < strftime('%s','now','localtime')*1000 AND completionStatus = 0")
+    fun getPastDueCount(): Flow<Int>
 
+    @Query("DELETE FROM tasks where dueAt < strftime('%s','now','localtime')*1000 AND completionStatus = 0")
+    suspend fun deletePastDue()
 
     /*@Query("SELECT COUNT(*) FROM tasks WHERE dueAt < curr") */
 

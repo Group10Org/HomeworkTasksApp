@@ -25,8 +25,13 @@ class TaskRepository(private val dao: TaskDao) {
         }
     }
 
+    suspend fun deletePastDueTasks()
+    {
+        dao.deletePastDue()
+    }
+
     val pastDueCount: Flow<Int>
-        get() = dao.getPastDueCount(System.currentTimeMillis())
+        get() = dao.getPastDueCount()
     suspend fun add(
         title: String,
         desc: String?,

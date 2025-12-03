@@ -1,11 +1,15 @@
 package com.example.hwtasks
 
+import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,6 +39,8 @@ class ProfileFragment : Fragment() {
     private lateinit var database: AppDatabase
     private lateinit var settingsManager: SettingsManager
     private var trueCount: Long = 0
+    private var trueCount2: Int = 0
+    private var checking: Int = 0
 
     private var curr : Long? = System.currentTimeMillis()
 
@@ -167,14 +173,64 @@ class ProfileFragment : Fragment() {
                 textView.text = "Total Tasks: $count"
             }
         }
+
     }
 
     private fun countPastDue(textView: TextView) {
         viewLifecycleOwner.lifecycleScope.launch {
             repo.pastDueCount.collectLatest { count ->
+                Log.d("PastDueCount", "Current count = $count")
                 textView.text = "Assignments Past Due: $count"
+                trueCount2 = count
+                if(trueCount2 > 0)
+                    showPastDueDialog(trueCount2)
             }
 
+        }
+    }
+    private fun showPastDueDialog(pastDueCount: Int) {
+        val dialogView = LayoutInflater.from(requireContext())
+            .inflate(R.layout.dialog_past_due_tasks, null)
+
+        val dialog = AlertDialog.Builder(requireContext())
+            .setView(dialogView)
+            .setCancelable(true)
+            .create()
+
+        dialog.show()
+
+        // Get views from dialog
+        val tvCount = dialogView.findViewById<TextView>(R.id.tv_past_due_count)
+        val btnCancel = dialogView.findViewById<Button>(R.id.btn_cancel)
+        val btnDeleteAll = dialogView.findViewById<Button>(R.id.btn_delete_all)
+
+        // Set count text
+        val countText = if (pastDueCount == 1) {
+            "You have 1 assignment past due"
+        } else {
+            "You have $pastDueCount assignments past due"
+        }
+        tvCount.text = countText
+
+
+        btnCancel.setOnClickListener {
+            dialog.dismiss()
+        }
+
+
+        btnDeleteAll.setOnClickListener {
+            deleteAllPastDueTasks()
+            dialog.dismiss()
+            Toast.makeText(requireContext(),
+                "All past due assignments deleted",
+                Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun deleteAllPastDueTasks()
+    {
+        viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+            repo.deletePastDueTasks()
         }
     }
 
