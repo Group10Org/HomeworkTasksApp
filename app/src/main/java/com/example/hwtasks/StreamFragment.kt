@@ -19,7 +19,7 @@ import kotlinx.coroutines.flow.collectLatest
 
 class StreamFragment : Fragment() {
 
-    private val apiKey = "AIzaSyBQhLjIQGU3KnwQos4SUUj4x2vAzZyKQ00" // Replace with your YouTube Data API key
+    private val apiKey = "YOUR_API_KEY_HERE" // Replace with your YouTube Data API key
 
     // ✅ Correct ViewModel instantiation with custom factory
     private val viewModel: StreamViewModel by viewModels {
