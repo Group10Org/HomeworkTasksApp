@@ -34,7 +34,7 @@ android {
         jvmTarget = '11'
     }
 
-    // ✅ Required for ActivityMainBinding and fragment bindings
+    //  Required for ActivityMainBinding and fragment bindings
     buildFeatures {
         viewBinding true
     }
@@ -42,8 +42,10 @@ android {
 
 dependencies {
 
+    // Navigation
     implementation "androidx.navigation:navigation-fragment-ktx:2.7.7"
     implementation "androidx.navigation:navigation-ui-ktx:2.7.7"
+
     // Room
     implementation "androidx.room:room-runtime:2.6.1"
     implementation "androidx.room:room-ktx:2.6.1"
@@ -60,9 +62,12 @@ dependencies {
     implementation libs.androidx.activity
     implementation libs.androidx.constraintlayout
 
+    // Glide for image loading
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    kapt 'com.github.bumptech.glide:compiler:4.16.0'
+
     // Testing
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
 }
-
