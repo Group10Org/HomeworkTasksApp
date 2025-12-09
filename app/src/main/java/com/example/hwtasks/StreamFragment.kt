@@ -11,26 +11,17 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.hwtasks.ShortItem
-import com.example.hwtasks.ShortsAdapter
-import com.example.hwtasks.StreamViewModel
-import com.example.hwtasks.StreamViewModelFactory
 import kotlinx.coroutines.flow.collectLatest
 
 class StreamFragment : Fragment() {
 
-    private val apiKey = "YOUR_API_KEY_HERE" // Replace with your YouTube Data API key
+    private val apiKey = "YOUR_YOUTUBE_API_KEY"
 
-    // ✅ Correct ViewModel instantiation with custom factory
     private val viewModel: StreamViewModel by viewModels {
         StreamViewModelFactory(apiKey)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_stream, container, false)
     }
 
@@ -38,41 +29,32 @@ class StreamFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val recycler = view.findViewById<RecyclerView>(R.id.shortsRecycler)
-        val adapter = ShortsAdapter(mutableListOf()) { item ->
-            openShort(item)
-        }
+        val adapter = ShortsAdapter(mutableListOf()) { item -> openShort(item) }
 
         recycler.layoutManager = LinearLayoutManager(requireContext())
         recycler.adapter = adapter
 
-        // Infinite scroll listener
+        // Infinite scroll
         recycler.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
                 val lm = rv.layoutManager as LinearLayoutManager
                 val lastVisible = lm.findLastVisibleItemPosition()
-
-                if (lastVisible >= adapter.itemCount - 4) {
-                    viewModel.loadMore()
-                }
+                if (lastVisible >= adapter.itemCount - 4) viewModel.loadShortsForClasses()
             }
         })
 
-        // Observe ViewModel Shorts data
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+        lifecycleScope.launchWhenStarted {
             viewModel.shorts.collectLatest { data ->
-                // Only add new items
                 adapter.addMore(data.takeLast(20))
             }
         }
 
-        // Load the first page
-        viewModel.loadMore()
+        // Load first page
+        viewModel.loadShortsForClasses()
     }
 
-    // Opens YouTube Shorts in YouTube app or browser
     private fun openShort(item: ShortItem) {
         val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://youtube.com/shorts/${item.videoId}"))
         startActivity(intent)
     }
 }
-

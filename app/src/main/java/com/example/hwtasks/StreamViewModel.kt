@@ -8,19 +8,19 @@ import kotlinx.coroutines.launch
 class StreamViewModel(private val apiKey: String) : ViewModel() {
 
     private val repo = ShortsRepository(apiKey)
-
     val shorts = MutableStateFlow<List<ShortItem>>(emptyList())
     var isLoading = false
 
-    fun loadMore() {
+    // Hardcoded class names
+    private val classNames = listOf("Math", "Physics", "History")
+
+    fun loadShortsForClasses() {
         if (isLoading) return
         isLoading = true
 
         viewModelScope.launch {
-            val newShorts = repo.loadShorts()
-
+            val newShorts = repo.loadShortsForClasses(classNames)
             shorts.value = shorts.value + newShorts
-
             isLoading = false
         }
     }
