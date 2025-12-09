@@ -12,7 +12,7 @@ class StreamViewModel(private val apiKey: String) : ViewModel() {
     var isLoading = false
 
     // Hardcoded class names
-    private val classNames = listOf("Math", "Physics", "History")
+    private val classNames = listOf("datastructures", "android app development", "discrete math")
 
     fun loadShortsForClasses() {
         if (isLoading) return
